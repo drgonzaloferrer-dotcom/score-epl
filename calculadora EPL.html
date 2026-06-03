@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora de decisión quirúrgica EPL</title>
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --line:#e2e8f0; --text:#0f172a; --muted:#64748b;
+      --blue:#1d4ed8; --blue-soft:#eff6ff; --indigo:#4338ca; --indigo-soft:#eef2ff;
+      --amber:#92400e; --amber-soft:#fffbeb; --emerald:#065f46; --emerald-soft:#ecfdf5; --slate-soft:#f8fafc;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#fff);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text)}
+    .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 40px;display:grid;gap:24px;grid-template-columns:1.2fr .8fr}
+    .hero small{display:block;color:var(--blue);text-transform:uppercase;letter-spacing:.22em;font-weight:700}
+    h1{font-size:40px;line-height:1.06;margin:10px 0 14px}
+    .sub{max-width:860px;color:var(--muted);font-size:16px;line-height:1.6}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 6px 20px rgba(15,23,42,.04)}
+    .card h2{margin:0;font-size:24px}
+    .card-inner{padding:22px}
+    .row{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;align-items:center;padding:10px 0}
+    .label{font-weight:600}
+    .hint{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.45}
+    select,button{width:100%;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:#fff;font-size:15px}
+    button{width:auto;cursor:pointer}
+    .btns{display:flex;gap:10px;padding-top:8px}
+    .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn-ghost{background:#fff}
+    .result{border-radius:24px}
+    .tone-blue{background:var(--blue-soft);border-color:#bfdbfe}
+    .tone-indigo{background:var(--indigo-soft);border-color:#c7d2fe}
+    .tone-amber{background:var(--amber-soft);border-color:#fde68a}
+    .tone-emerald{background:var(--emerald-soft);border-color:#a7f3d0}
+    .tone-slate{background:var(--slate-soft);border-color:var(--line)}
+    .result-top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .badge{font-size:12px;border:1px solid rgba(15,23,42,.08);padding:6px 10px;border-radius:999px;background:#fff}
+    .rec{font-size:28px;font-weight:800;line-height:1.15;margin:6px 0}
+    .scores{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .scorebox{background:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.7);border-radius:20px;padding:16px}
+    .scorebox .k{font-size:13px;color:var(--muted)}
+    .scorebox .v{font-size:38px;font-weight:800;margin-top:6px}
+    hr{border:none;border-top:1px solid rgba(15,23,42,.08);margin:18px 0}
+    .list{display:grid;gap:10px}
+    .item{font-size:14px;line-height:1.55;color:#334155}
+    .item b{color:#0f172a}
+    .foot{font-size:14px;color:var(--muted);line-height:1.6}
+    @media (max-width: 960px){.wrap{grid-template-columns:1fr} h1{font-size:32px}}
+    @media (max-width: 680px){.row{grid-template-columns:1fr} .scores{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section>
+      <div class="hero">
+        <small>EPL</small>
+        <h1>Calculadora de decisión quirúrgica EPL</h1>
+        <div class="sub">Herramienta conceptual para sugerir la técnica más razonable entre <b>Arciero / Fibular anatómica</b> y <b>LaPrade-Jones / Tibiofibular anatómica</b> en lesiones de la esquina posterolateral.</div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="card-inner">
+          <h2>Variables de entrada</h2>
+
+          <div class="row"><div><div class="label">¿Avulsión reparable?</div><div class="hint">Si es reparable y aguda, la discusión cambia.</div></div><div><select id="avulsionRepairable"><option value="no" selected>No</option><option value="yes">Sí</option></select></div></div>
+
+          <div class="row"><div><div class="label">Clasificación Fanelli / Houston</div><div class="hint">Aporta gravedad estructural. Aquí empuja hacia LaPrade-Jones.</div></div><div><select id="fanelliGrade"><option value="A" selected>Fanelli A</option><option value="B">Fanelli B</option><option value="C">Fanelli C</option></select></div></div>
+
+          <div class="row"><div><div class="label">LCL / LCF</div><div class="hint">Grado de compromiso estructural.</div></div><div><select id="lcl"><option value="partial">Parcial</option><option value="complete" selected>Completa</option></select></div></div>
+
+          <div class="row"><div><div class="label">Inestabilidad rotatoria clínico-radiológica</div><div class="hint">Integra poplíteo, dial test, cajón posterolateral y RM. Evita contar dos veces lo mismo.</div></div><div><select id="plComplexity"><option value="low" selected>Baja / parcial / dudosa</option><option value="high">Severa clínica + RM</option></select></div></div>
+
+          <div class="row"><div><div class="label">Colisión de túneles / complejidad geométrica</div><div class="hint">Variable central. Integra lesión asociada y riesgo real de conflicto entre túneles.</div></div><div><select id="tunnelCollisionPattern"><option value="isolated">EPL aislado</option><option value="acl" selected>EPL + LCA</option><option value="pcl">EPL + LCP</option><option value="acl_corners">LCA + esquinas asociadas</option></select></div></div>
+
+          <div class="row"><div><div class="label">Varo coronal</div><div class="hint">Si es &gt; 5°, sale del score y orienta a osteotomía.</div></div><div><select id="varus"><option value="lt5" selected>Varo &lt; 5°</option><option value="gt5">Varo &gt; 5°</option></select></div></div>
+
+          <div class="row"><div><div class="label">Hiperlaxitud</div><div class="hint">Fenotipo ligamentario global.</div></div><div><select id="hyperlaxity"><option value="no" selected>No</option><option value="yes">Sí</option></select></div></div>
+
+          <div class="row"><div><div class="label">Disponibilidad de injerto</div><div class="hint">No es teoría. Es factibilidad real del pabellón.</div></div><div><select id="graftAvailability"><option value="autograft_only" selected>Solo autoinjerto</option><option value="allograft_available">Aloinjerto disponible</option></select></div></div>
+
+          <div class="row"><div><div class="label">¿Indicación específica de neurolisis del NCP?</div><div class="hint">Si no se requiere, Arciero gana ventaja real. Si sí se requiere, solo genera alerta.</div></div><div><select id="neurolysis"><option value="not_indicated" selected>No</option><option value="indicated">Sí</option></select></div></div>
+
+          <div class="row"><div><div class="label">Etapa de experiencia del equipo en EPL</div><div class="hint">Inicial favorece más Arciero; experimentado vuelve ambas técnicas factibles.</div></div><div><select id="learningStage"><option value="initial" selected>Experiencia inicial / primeros casos</option><option value="established">Experiencia establecida / equipo rodado</option></select></div></div>
+
+          <div class="row"><div><div class="label">Timing</div><div class="hint">No suma puntos diferenciales. Solo agrega alerta si es crónico.</div></div><div><select id="timing"><option value="acute" selected>Agudo / subagudo</option><option value="chronic">Crónico</option></select></div></div>
+
+          <div class="btns">
+            <button class="btn-primary" id="calcBtn">Actualizar resultado</button>
+            <button class="btn-ghost" id="resetBtn" type="button">Reiniciar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside>
+      <div id="resultCard" class="card result tone-blue">
+        <div class="card-inner">
+          <div class="result-top">
+            <h2>Resultado sugerido</h2>
+            <span class="badge" id="confidenceBadge">Confianza Media</span>
+          </div>
+          <div class="rec" id="recommendation">Arciero / Fibular anatómica sugerida</div>
+          <div class="scores">
+            <div class="scorebox"><div class="k">Arciero / Fibular anatómica</div><div class="v" id="fibScore">0</div></div>
+            <div class="scorebox"><div class="k">LaPrade-Jones / Tibiofibular anatómica</div><div class="v" id="tibScore">0</div></div>
+          </div>
+
+          <hr />
+          <div><div class="label" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Por qué</div><div class="list" id="reasons"></div></div>
+
+          <div id="warningsWrap" style="display:none">
+            <hr />
+            <div><div class="label" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Alertas</div><div class="list" id="warnings"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="card-inner">
+          <h2 style="font-size:20px">Cómo leer esta herramienta</h2>
+          <div class="foot" style="margin-top:10px">
+            La calculadora no reemplaza criterio clínico. Ordena la decisión y la hace explicable.<br><br>
+            Si la lesión favorece una técnica más compleja y el equipo no está listo, la salida práctica puede ser pedir ayuda o derivar, no simplificar mal el caso.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+const defaults = {
+  avulsionRepairable: 'no',
+  fanelliGrade: 'A',
+  lcl: 'complete',
+  plComplexity: 'low',
+  tunnelCollisionPattern: 'acl',
+  varus: 'lt5',
+  hyperlaxity: 'no',
+  graftAvailability: 'autograft_only',
+  neurolysis: 'not_indicated',
+  learningStage: 'initial',
+  timing: 'acute'
+};
+
+function getInputs() {
+  const obj = {};
+  Object.keys(defaults).forEach(k => obj[k] = document.getElementById(k).value);
+  return obj;
+}
+
+function scoreCalculator(inputs) {
+  let fibular = 0;
+  let tibiofibular = 0;
+  const reasonsFibular = [];
+  const reasonsTibio = [];
+  const warnings = [];
+
+  if (inputs.avulsionRepairable === 'yes') {
+    return {
+      recommendation: 'Reparación / reinserción primaria',
+      confidence: 'Alta',
+      fibularScore: 0,
+      tibioScore: 0,
+      reasons: ['Existe una avulsión reparable: en este escenario la primera opción no es una reconstrucción, sino reparar la lesión índice si el tejido y el timing lo permiten.'],
+      warnings: ['La sugerencia aplica sobre todo en fase aguda y con tejido de buena calidad.'],
+      color: 'emerald'
+    };
+  }
+
+  if (inputs.varus === 'gt5') {
+    return {
+      recommendation: 'Indicación de osteotomía correctora / reevaluar estrategia',
+      confidence: 'Alta',
+      fibularScore: 0,
+      tibioScore: 0,
+      reasons: [
+        'Con varo mayor de 5° la reconstrucción ligamentaria aislada tiene alto riesgo de fracaso.',
+        'En este escenario la discusión principal deja de ser fibular vs tibiofibular y pasa a ser corrección de alineación.'
+      ],
+      warnings: ['Planificar osteotomía correctora según eje, cronicidad y contexto ligamentario.'],
+      color: 'emerald'
+    };
+  }
+
+  if (inputs.fanelliGrade === 'B') {
+    fibular += 1;
+    tibiofibular += 2;
+    reasonsFibular.push('Fanelli B no excluye la opción fibular, pero ya reconoce una lesión de mayor entidad.');
+    reasonsTibio.push('Fanelli B inclina la balanza hacia LaPrade-Jones por mayor compromiso estructural.');
+  }
+  if (inputs.fanelliGrade === 'C') {
+    fibular += 1;
+    tibiofibular += 3;
+    reasonsFibular.push('Incluso en Fanelli C la opción fibular no desaparece por completo, aunque deja de ser la favorita.');
+    reasonsTibio.push('Fanelli C favorece con más fuerza una reconstrucción tipo LaPrade-Jones.');
+  }
+
+  if (inputs.lcl === 'complete') {
+    fibular += 1;
+    tibiofibular += 1;
+  }
+
+  if (inputs.plComplexity === 'high') {
+    fibular += 2;
+    tibiofibular += 3;
+    reasonsFibular.push('Una inestabilidad rotatoria clínico-radiológica severa no excluye la opción fibular en casos bien seleccionados.');
+    reasonsTibio.push('Una inestabilidad rotatoria clínico-radiológica severa inclina con más fuerza la balanza hacia tibiofibular.');
+  }
+
+  if (inputs.tunnelCollisionPattern === 'acl') {
+    fibular += 3;
+    tibiofibular += 1;
+    reasonsFibular.push('En EPL + LCA, el mapa de túneles suele favorecer una estrategia fibular más amigable.');
+    reasonsTibio.push('Incluso en EPL + LCA, la tibiofibular puede seguir siendo válida si el patrón EPL lo exige y la planificación es precisa.');
+    warnings.push('Planificar secuencia y orientación de túneles en contexto de LCA asociado.');
+  }
+
+  if (inputs.tunnelCollisionPattern === 'pcl') {
+    fibular += 3;
+    tibiofibular += 2;
+    reasonsFibular.push('En EPL + LCP, la geometría del caso sigue dando una ventaja práctica a la opción fibular.');
+    reasonsTibio.push('En EPL + LCP, la tibiofibular sigue siendo razonable en manos entrenadas y con buena planificación.');
+    warnings.push('Revisar cuidadosamente trayectorias si existe LCP asociado.');
+  }
+
+  if (inputs.tunnelCollisionPattern === 'acl_corners') {
+    fibular += 3;
+    reasonsFibular.push('Cuando hay LCA más reconstrucciones asociadas de esquinas, la saturación del mapa de túneles favorece claramente la opción fibular.');
+    warnings.push('Escenario de alta complejidad geométrica: planificar mapa de túneles antes de decidir la técnica.');
+  }
+
+  if (inputs.varus === 'lt5') {
+    tibiofibular += 1;
+    reasonsTibio.push('Un varo menor de 5° otorga una leve inclinación hacia tibiofibular, pero no define por sí solo la técnica.');
+  }
+
+  if (inputs.hyperlaxity === 'yes') {
+    tibiofibular += 1;
+    reasonsTibio.push('La hiperlaxitud otorga una leve inclinación hacia tibiofibular, pero no define por sí sola la técnica.');
+  }
+
+  if (inputs.graftAvailability === 'autograft_only') {
+    fibular += 3;
+    tibiofibular += 1;
+    reasonsFibular.push('Si solo hay autoinjerto disponible, la opción fibular mantiene una ventaja práctica clara por longitud y factibilidad.');
+    reasonsTibio.push('Aun con solo autoinjerto, la tibiofibular no queda totalmente anulada en casos bien seleccionados.');
+  }
+
+  if (inputs.graftAvailability === 'allograft_available') {
+    fibular += 1;
+    tibiofibular += 1;
+    reasonsFibular.push('Con aloinjerto disponible, la barrera de injerto disminuye y la opción fibular sigue plenamente vigente.');
+    reasonsTibio.push('Con aloinjerto disponible, la tibiofibular queda en igualdad de condiciones desde el punto de vista del injerto.');
+  }
+
+  if (inputs.neurolysis === 'not_indicated') {
+    fibular += 2;
+    reasonsFibular.push('Si no se requiere neurolisis del NCP, Arciero gana una ventaja técnica real frente a LaPrade-Jones.');
+  } else {
+    warnings.push('Existe indicación específica de neurolisis del NCP: planificar disección neural cuidadosa y protección del nervio durante todo el procedimiento.');
+  }
+
+  if (inputs.learningStage === 'initial') {
+    fibular += 2;
+    reasonsFibular.push('En una etapa inicial de experiencia en EPL, la opción fibular suele ser más reproducible y amigable para construir curva de aprendizaje.');
+  } else {
+    fibular += 1;
+    tibiofibular += 1;
+    reasonsFibular.push('Con experiencia establecida, la opción fibular sigue siendo plenamente válida.');
+    reasonsTibio.push('Con experiencia establecida, LaPrade-Jones gana factibilidad real y técnica.');
+  }
+
+  if (inputs.timing === 'chronic') {
+    warnings.push('Timing crónico: no cambia el puntaje, pero obliga a revisar alineación, recurvatum, calidad tisular y eventual necesidad de osteotomía.');
+  }
+
+  const diff = Math.abs(fibular - tibiofibular);
+  let recommendation = '';
+  let confidence = 'Media';
+  let reasons = [];
+  let color = 'blue';
+
+  if (fibular >= tibiofibular + 2) {
+    recommendation = 'Arciero / Fibular anatómica sugerida';
+    reasons = reasonsFibular.length ? reasonsFibular : ['La suma global favorece una técnica más simple y reproducible.'];
+    color = 'blue';
+  } else if (tibiofibular >= fibular + 2) {
+    recommendation = 'LaPrade-Jones / Tibiofibular anatómica sugerida';
+    reasons = reasonsTibio.length ? reasonsTibio : ['La suma global favorece una reconstrucción más completa del EPL.'];
+    color = 'indigo';
+  } else {
+    recommendation = 'Caso límite: decisión individualizada';
+    reasons = ['La diferencia entre opciones es estrecha.', 'Aquí mandan la colisión de túneles, la disponibilidad de injerto y la experiencia del equipo.'];
+    warnings.push('Este escenario merece planificación quirúrgica deliberada, no piloto automático.');
+    color = 'amber';
+  }
+
+  if (diff >= 4) confidence = 'Alta';
+  else if (diff <= 1) confidence = 'Baja';
+
+  return { recommendation, confidence, fibularScore: fibular, tibioScore: tibiofibular, reasons, warnings, color };
+}
+
+function render() {
+  const result = scoreCalculator(getInputs());
+  document.getElementById('recommendation').textContent = result.recommendation;
+  document.getElementById('confidenceBadge').textContent = 'Confianza ' + result.confidence;
+  document.getElementById('fibScore').textContent = result.fibularScore;
+  document.getElementById('tibScore').textContent = result.tibioScore;
+
+  const reasons = document.getElementById('reasons');
+  reasons.innerHTML = '';
+  result.reasons.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = '<b>•</b> ' + r;
+    reasons.appendChild(div);
+  });
+
+  const warningsWrap = document.getElementById('warningsWrap');
+  const warnings = document.getElementById('warnings');
+  warnings.innerHTML = '';
+  if (result.warnings && result.warnings.length) {
+    warningsWrap.style.display = 'block';
+    result.warnings.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = '<b>•</b> ' + r;
+      warnings.appendChild(div);
+    });
+  } else {
+    warningsWrap.style.display = 'none';
+  }
+
+  document.getElementById('resultCard').className = 'card result tone-' + result.color;
+}
+
+function resetForm() {
+  Object.keys(defaults).forEach(k => document.getElementById(k).value = defaults[k]);
+  render();
+}
+
+document.getElementById('calcBtn').addEventListener('click', render);
+document.getElementById('resetBtn').addEventListener('click', resetForm);
+document.querySelectorAll('select').forEach(el => el.addEventListener('change', render));
+render();
+</script>
+</body>
+</html>
